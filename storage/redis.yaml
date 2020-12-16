@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+type: Opaque
+stringData:
+    REDIS_PASSWORD: "sdfghjkjhgfdfghjk"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  ports:
+  - port: 6379
+    protocol: TCP
+  selector:
+    app: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.0.9
+        volumeMounts:
+        - name: vol
+          mountPath: /data
+        ports:
+        - containerPort: 6379
+        imagePullPolicy: Never
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        envFrom:
+        - secretRef:
+            name: redis-secret
+        command: ["redis-server"]
+        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+      volumes:
+      - name: vol
+        hostPath: 
+          path: /c/Users/kfilipczuk/Desktop/Karol/K8s/js_redis_app/storage

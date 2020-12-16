@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-service
+spec:
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: node
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-deployment
+  labels:
+    app: node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node
+  template:
+    metadata:
+      labels:
+        app: node
+    spec:
+      containers:
+      - name: node
+        image: docker5114/node-app
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Never
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        envFrom:
+        - secretRef:
+            name: redis-secret
