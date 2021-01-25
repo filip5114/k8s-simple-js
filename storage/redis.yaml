@@ -41,7 +41,7 @@ spec:
           mountPath: /data
         ports:
         - containerPort: 6379
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: 1000m
